@@ -736,6 +736,16 @@ When receiving a 128-bit SID with NEXT-C-SID flavor, LNL=16, FL=16 or 0, AL=128-
 
 When receiving a 128-bit SID with REPLACE-C-SID flavor SID, LNL=16, FL=0, AL=128-LBL-NL-FL and the value of argument is all 0, the source node marks the SID supporting 16-bit C-SID. The locator is marked for 16-bit compression. Other SIDs allocated from this locator can be marked as supporting 16-bit C-SID when LNL=16, FL=16, AL=128-LBL-NL-FL and the value of argument is all 0. When receiving a 128-bit SID with REPLACE-C-SID flavor, LNFL=32, AL=128-LBL-NL-FL and the value of argument is all 0, the source node marks the SID supporting 32-bit C-SID. The locator is marked for 32-bit compression.
 
+Also, when C-SIDs are allocated from GIB and LIB, for example in 16-bit compression, global C-SIDs could be skipped in the segment list for better compression if the local C-SIDs can steer the packets correctly. Therefore, when generating the uncompressed segment list, the segment list is modified following the below rules. 
+
+- If the NodeID is not needed, move the bits after the NodeID to bits [LBL..127-LNL] of the SID.
+
+- If the NodeID and the Function ID are both needed, separate the SID into two SIDs, Locator-Block+NodeID and Locator-Block+FunctionID, inserting the Locator-block+FunctionID SID immediately following the Locator-Block+NodeID SID.
+
+In this way, when compressing the SID list, the compressor can directly select the C-SID from the bits of [LBL..LNFL] in the 128-bit SID.
+
+For 32-bit REPLACE-C-SID flavor SIDs, it always has NodeID and FunctionID in C-SID, so the above processing is not needed for it.
+
 # Inter Routing Domains with the End.XPS behavior
 
 The End.XPS behavior described in this section is OPTIONAL.
